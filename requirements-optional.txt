@@ -1,0 +1,14 @@
+# install with base requirements file
+# 
+-r requirements.txt
+
+batinfo
+docker
+hddtemp
+pymdstat
+pysnmp
+pySMART.smartx
+statsd
+wifi
+zeroconf==0.19.1; python_version < "3.0"
+zeroconf; python_version >= "3.0"

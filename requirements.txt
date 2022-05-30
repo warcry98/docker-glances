@@ -1,0 +1,4 @@
+psutil
+defusedxml
+future
+packaging

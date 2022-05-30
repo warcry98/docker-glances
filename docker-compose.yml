@@ -1,0 +1,19 @@
+version: '3'
+services:
+  glances:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: "glances"
+    container_name: "glances-container"
+    restart: unless-stopped
+    pid: host
+    network_mode: "host"
+    # ports:
+    #   - 61208:61208
+    environment:
+      - TZ=Asia/Jakarta
+      - GLANCES_OPT=--webserver
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./conf:/glances/conf
