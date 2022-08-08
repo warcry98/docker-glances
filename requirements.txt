@@ -2,3 +2,4 @@ psutil
 defusedxml
 future
 packaging
+influxdb_client

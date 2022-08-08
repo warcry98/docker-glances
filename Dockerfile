@@ -33,6 +33,7 @@ RUN pip3 install --no-cache-dir --user glances[all]
 EXPOSE 61209 61208
 
 WORKDIR /glances
+COPY conf/glances.conf .
 
 # Define default command
 CMD python3 -m glances -C /glances/conf/glances.conf $GLANCES_OPT

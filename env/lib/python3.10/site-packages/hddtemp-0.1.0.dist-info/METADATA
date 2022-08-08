@@ -1,0 +1,19 @@
+Metadata-Version: 2.0
+Name: hddtemp
+Version: 0.1.0
+Summary: An hddtemp client
+Home-page: UNKNOWN
+Author: Dennis Fink
+Author-email: dennis.fink@c3l.lu
+License: GPLv3+
+Platform: any
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Utilities
+
+UNKNOWN
+
+
