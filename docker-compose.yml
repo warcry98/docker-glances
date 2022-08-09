@@ -1,27 +1,15 @@
 version: '3'
 services:
-  glances-in-docker:
+  glances-docker:
     build:
       context: .
       dockerfile: Dockerfile
-    image: "glances-in-docker"
-    container_name: "glances-in-docker-container"
+    image: "glances-docker"
+    container_name: "glances-docker-container"
     restart: unless-stopped
-    networks:
-      static-network:
-        ipv4_address: 172.20.128.5
-    #pid: host
-    #network_mode: "host"
-    #ports:
-    #  - 61208:61208
+    pid: host
+    network_mode: "host"
     environment:
       - TZ=Asia/Jakarta
-      #- GLANCES_OPT=--export influxdb2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      #- ./conf:/glances/conf
-networks:
-  static-network:
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16

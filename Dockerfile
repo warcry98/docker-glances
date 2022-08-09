@@ -28,11 +28,6 @@ RUN rm /var/lib/apt/lists/* -vf \
   wireless-tools \
   smartmontools \
   iputils-ping \
-  openssh-server \
-  && sed -i 's/#PermitRootLogin\sprohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
-  && sed -i 's/#PermitEmptyPasswords\sno/PermitEmptyPasswords yes/' /etc/ssh/sshd_config \
-  &&  mkdir -p /run/sshd \
-  && echo 'root:root' | chpasswd \
   && mkdir -p /var/log/supervisor \
   && rm -rf .profile \
   && apt-get clean \
@@ -56,8 +51,6 @@ RUN python3 -m venv env \
 
 # Copy glances config
 COPY conf/glances.conf /root/conf/glances.conf
-
-EXPOSE 22
 
 COPY run.sh /run.sh
 RUN ["chmod", "+x", "/run.sh"]
