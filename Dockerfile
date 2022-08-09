@@ -1,39 +1,64 @@
-FROM python:slim
+FROM debian:stable-slim
 
-# Install packages
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
+ENV DEBIAN_FRONTEND noninteractive
+ENV LANG C.UTF-8
+
+# Fix bad proxy issue
+COPY system/99fixbadproxy /etc/apt/apt.conf.d/99fixbadproxy
+
+WORKDIR /root
+
+SHELL [ "/bin/bash", "-c" ]
+
+# Clear previous sources
+RUN rm /var/lib/apt/lists/* -vf \
+  && apt-get -y update \
+  && apt-get -y dist-upgrade \ 
+  && apt-get -y install \
+  apt-utils \
+  python3 \
   python3-dev \
+  python3-pip \
+  python3-venv \
+  supervisor \
+  tzdata \
   curl \
   build-essential \
   lm-sensors \
   wireless-tools \
   smartmontools \
-  iputils-ping && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+  iputils-ping \
+  openssh-server \
+  && sed -i 's/#PermitRootLogin\sprohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+  && sed -i 's/#PermitEmptyPasswords\sno/PermitEmptyPasswords yes/' /etc/ssh/sshd_config \
+  &&  mkdir -p /run/sshd \
+  && echo 'root:root' | chpasswd \
+  && mkdir -p /var/log/supervisor \
+  && rm -rf .profile \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install packages for timezone and healthcheck
-RUN apt-get install -y --no-install-recommends bash tzdata curl
+# Fix timezone
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Install the dependencies beforehand to make them cacheable
+# Configure Supervisord and base env
+COPY supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY bash/profile .profile
+
+# Copy requirement files
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir --user -r requirements.txt
-
-# Install additional packages
 COPY requirements-optional.txt ./
-RUN CASS_DRIVER_NO_CYTHON=1 pip3 install --no-cache-dir --user -r requirements-optional.txt
+RUN python3 -m venv env \
+  && source env/bin/activate \
+  && pip3 install --no-cache-dir -r requirements-optional.txt \
+  && pip3 install --no-cache-dir glances[all] \
+  && deactivate
 
-# Force install otherwise it could be cached without rerun
-ARG CHANGING_ARG
-RUN pip3 install --no-cache-dir --user glances[all]
+# Copy glances config
+COPY conf/glances.conf /root/conf/glances.conf
 
-# EXPOSE PORT (XMLRPC / WebUI)
-EXPOSE 61209 61208
+EXPOSE 22
 
-WORKDIR /glances
-COPY conf/glances.conf .
-
-# Define default command
-CMD python3 -m glances -C /glances/conf/glances.conf $GLANCES_OPT
+COPY run.sh /run.sh
+RUN ["chmod", "+x", "/run.sh"]
+CMD ["/run.sh"]
